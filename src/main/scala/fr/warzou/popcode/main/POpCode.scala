@@ -13,5 +13,4 @@ object POpCode {
     val classReader: ClassReader = new ClassReader(reader)
     println(classReader.classInfo.minorVersion + " " + classReader.classInfo.majorVersion)
   }
-
 }

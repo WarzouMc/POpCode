@@ -10,8 +10,8 @@ class ByteByByteReader(val reader: BufferedReader) {
 
   def position: Int = _position
 
-  def next(): Int = {
-    next(1)(0)
+  def next(): Array[Int] = {
+    next(1)
   }
 
   def next(count: Int): Array[Int] = {
