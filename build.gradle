@@ -9,7 +9,7 @@ allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
 
     group 'fr.warzou'
-    version '0.1.0'
+    version '0.0.1'
 
     jar.manifest.attributes('Main-Class': 'fr.warzou.popcode.main.POpCode')
 

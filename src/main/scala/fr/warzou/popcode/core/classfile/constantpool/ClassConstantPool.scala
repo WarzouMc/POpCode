@@ -1,5 +1,6 @@
 package fr.warzou.popcode.core.classfile.constantpool
 
+import fr.warzou.popcode.core.classfile.constantpool.constant.Constant
 import fr.warzou.popcode.core.file.reader.ByteByByteReader
 import fr.warzou.popcode.utils.ByteSequence
 
