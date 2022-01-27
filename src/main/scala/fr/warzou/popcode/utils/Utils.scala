@@ -27,7 +27,6 @@ object Utils {
     val exponent = (longValue >> 23) & 0xff
     val fraction = if (exponent == 0) (longValue & 0x7fffff) << 1 else (longValue & 0x7fffff) | 0x800000
 
-    println(sign + " " + fraction + " " +  (exponent - 150.0d) + " " + (sign * fraction * math.pow(2.0d, exponent - 150.0d)))
     (sign * fraction * math.pow(2.0d, exponent - 150.0d)).toFloat
   }
 

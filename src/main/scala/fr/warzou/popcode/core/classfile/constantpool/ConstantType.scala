@@ -12,8 +12,9 @@ object ConstantType {
       case 4 => float(rawConstant)
       case 5 => long(rawConstant)
       case 6 => double(rawConstant)
-      case 7 | 8 => nameIndex(rawConstant)
-      case 9 | 10 | 11 => ref(rawConstant)
+      case 7 | 8 | 16 | 19 | 20 => index(rawConstant)
+      case 9 | 10 | 11 | 12 | 17 | 18 => biIndex(rawConstant)
+      case 15 => methodHandle(rawConstant)
       case _ => throw new IllegalStateException("Unknown tag '" + tag + "' !")
     }
   }
@@ -23,6 +24,7 @@ object ConstantType {
   def float(rawConstant: RawConstant): FloatConstant = FloatConstant(rawConstant)
   def long(rawConstant: RawConstant): LongConstant = LongConstant(rawConstant)
   def double(rawConstant: RawConstant): DoubleConstant = DoubleConstant(rawConstant)
-  def nameIndex(rawConstant: RawConstant): NameIndexConstant = NameIndexConstant(rawConstant)
-  def ref(rawConstant: RawConstant): RefConstant = RefConstant(rawConstant)
+  def index(rawConstant: RawConstant): IndexConstant = IndexConstant(rawConstant)
+  def biIndex(rawConstant: RawConstant): BiIndexConstant = BiIndexConstant(rawConstant)
+  def methodHandle(rawConstant: RawConstant): MethodHandleConstant = MethodHandleConstant(rawConstant)
 }

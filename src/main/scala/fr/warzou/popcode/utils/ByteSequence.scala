@@ -1,26 +1,21 @@
 package fr.warzou.popcode.utils
 
-class ByteSequence(val sequence: String, val bytes: Array[Int], val parseString: Boolean) extends Iterable[Int] {
+class ByteSequence(val bytes: Array[Int]) extends Iterable[Int] {
 
   private var _sequence: String = ""
   private var _bytes: Array[Int] = _
+  private var _source: String = ""
 
   initVars()
 
   private def initVars(): Unit = {
-    if (parseString) {
-      _sequence = sequence.replace(" ", "")
-      _bytes = hexStringToInts(_sequence)
-      if (_sequence.length % 2 == 1) {
-        throw new IllegalArgumentException("sequence without the ' ' must have an even number of char")
-      }
-    } else {
-      _bytes = bytes
-      _bytes.foreach(_sequence += Integer.toHexString(_))
-    }
+    _bytes = bytes
+    _bytes.foreach(_sequence += Integer.toHexString(_))
   }
 
   private def sequence_=(string: String): Unit = ()
+
+  def sequence: String = _sequence
 
   def sequenceLength: Int = _sequence.length / 2
 
@@ -37,17 +32,9 @@ class ByteSequence(val sequence: String, val bytes: Array[Int], val parseString:
     if (obj == null || !obj.isInstanceOf[this.type]) false
     else {
       val that: ByteSequence = obj.asInstanceOf[this.type]
-      (that.parseString == parseString && that._sequence.equals(_sequence)
-        && Array.equals(that._bytes.asInstanceOf[Array[AnyRef]], _bytes.asInstanceOf[Array[AnyRef]]))
+      (Array.equals(that._bytes.asInstanceOf[Array[AnyRef]], _bytes.asInstanceOf[Array[AnyRef]])
+        && that._sequence.equals(_sequence))
     }
-  }
-
-  private def hexStringToInts(sequence: String): Array[Int] = {
-    val clearedString: String = sequence.replace(" ", "")
-    val split: Array[String] = splitString(clearedString)
-    val array: Array[Int] = new Array[Int](split.length)
-    array.indices.foreach(i => array(i) = Integer.parseInt(split(i), 16))
-    array
   }
 
   private def splitString(string: String): Array[String] = {

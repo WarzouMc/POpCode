@@ -23,15 +23,14 @@ case object constant {
         false
       } else {
         val that: Constant[_] = obj.asInstanceOf[this.type]
-        that._value.equals(_value) && that.tag == tag
+        that._value.equals(_value) && that.tag == tag && that._size == _size
       }
     }
   }
 
   case class Utf8Constant(override val rawConstant: RawConstant) extends Constant[(Int, String)](rawConstant) {
-    private val _length: ByteSequence = new ByteSequence("", rawConstant.reader.next(2), false)
-    private val byteValue: ByteSequence = new ByteSequence("",
-      reader.next(Integer.valueOf(_length.bytes(0) + "" + _length.bytes(1))), false)
+    private val _length: ByteSequence = new ByteSequence(rawConstant.reader.next(2))
+    private val byteValue: ByteSequence = new ByteSequence(reader.next(Integer.valueOf(_length.bytes(0) + "" + _length.bytes(1))))
 
     _value = readValue()
 
@@ -53,7 +52,7 @@ case object constant {
 
     override protected def readValue(): Int = {
       var stringValue: String = ""
-      val byteSequence: ByteSequence = new ByteSequence("", reader.next(4), false)
+      val byteSequence: ByteSequence = new ByteSequence(reader.next(4))
       val sequence = byteSequence.sequence
       Utils.hexToSignedInt(sequence)
     }
@@ -64,7 +63,7 @@ case object constant {
 
     override protected def readValue(): Float = {
       var stringValue: String = ""
-      val byteSequence: ByteSequence = new ByteSequence("", reader.next(4), false)
+      val byteSequence: ByteSequence = new ByteSequence(reader.next(4))
       val sequence = byteSequence.sequence
       Utils.hexToSignedFloat(sequence)
     }
@@ -75,7 +74,7 @@ case object constant {
 
     override protected def readValue(): Long = {
       var stringValue: String = ""
-      val byteSequence: ByteSequence = new ByteSequence("", reader.next(8), false)
+      val byteSequence: ByteSequence = new ByteSequence(reader.next(8))
       val sequence = byteSequence.sequence
       Utils.hexToSignedLong(sequence)
     }
@@ -86,33 +85,49 @@ case object constant {
 
     override protected def readValue(): Double = {
       var stringValue: String = ""
-      val byteSequence: ByteSequence = new ByteSequence("", reader.next(8), false)
+      val byteSequence: ByteSequence = new ByteSequence(reader.next(8))
       val sequence = byteSequence.sequence
       Utils.hexToSignedDouble(sequence)
     }
   }
 
-  case class NameIndexConstant(override val rawConstant: RawConstant) extends Constant[Int](rawConstant) {
+  case class IndexConstant(override val rawConstant: RawConstant) extends Constant[Int](rawConstant) {
     _value = readValue()
 
     override protected def readValue(): Int = {
       var stringValue: String = ""
-      val byteSequence: ByteSequence = new ByteSequence("", reader.next(2), false)
+      val byteSequence: ByteSequence = new ByteSequence(reader.next(2))
+
       byteSequence.foreach(stringValue += Integer.toHexString(_))
       Integer.parseInt(stringValue, 16)
     }
   }
 
-  case class RefConstant(override val rawConstant: RawConstant) extends Constant[Array[Int]](rawConstant) {
+  case class BiIndexConstant(override val rawConstant: RawConstant) extends Constant[Array[Int]](rawConstant) {
     _size = 2
     _value = readValue()
 
     override protected def readValue(): Array[Int] = {
-      val array = Array(_size)
-      val classIndexByteSequence: ByteSequence = new ByteSequence("", reader.next(2), false)
-      val nameAndTypeIndexByteSequence: ByteSequence = new ByteSequence("", reader.next(2), false)
-      array(0) = Integer.parseInt(classIndexByteSequence.sequence, 16)
-      array(1) = Integer.parseInt(nameAndTypeIndexByteSequence.sequence, 16)
+      val array = new Array[Int](_size)
+      val first: ByteSequence = new ByteSequence(reader.next(2))
+      val second: ByteSequence = new ByteSequence(reader.next(2))
+      array(0) = Integer.parseInt(first.sequence, 16)
+      array(1) = Integer.parseInt(second.sequence, 16)
+
+      array
+    }
+  }
+
+  case class MethodHandleConstant(override val rawConstant: RawConstant) extends Constant[Array[Int]](rawConstant) {
+    _size = 2
+    _value = readValue()
+
+    override protected def readValue(): Array[Int] = {
+      val array = new Array[Int](_size)
+      val referenceKindByteSequence: ByteSequence = new ByteSequence(reader.next(1))
+      val referenceIndexByteSequence: ByteSequence = new ByteSequence(reader.next(2))
+      array(0) = Integer.parseInt(referenceKindByteSequence.sequence, 16)
+      array(1) = Integer.parseInt(referenceIndexByteSequence.sequence, 16)
 
       array
     }

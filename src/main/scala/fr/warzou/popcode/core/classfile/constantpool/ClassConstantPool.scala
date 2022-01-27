@@ -6,13 +6,16 @@ import fr.warzou.popcode.utils.ByteSequence
 
 class ClassConstantPool(val reader: ByteByByteReader) {
 
-  private val length: ByteSequence = new ByteSequence("", reader.next(2), false)
-  val pool: Array[Constant[_]] = new Array[Constant[_]](Integer.valueOf(length.bytes(0) + "" + length.bytes(1)))
+  private val length: ByteSequence = new ByteSequence(reader.next(2))
+  val pool: Array[Constant[_]] = new Array[Constant[_]](Integer.valueOf(length.bytes(0) + "" + length.bytes(1)) - 1)
   readConstants()
 
   private def readConstants(): Unit = {
-    (0 until Integer.valueOf(length.bytes(0) + "" + length.bytes(1)))
-      .foreach(i => pool(i) = ConstantType.of(new RawConstant(reader)))
+    (1 until Integer.valueOf(length.bytes(0) + "" + length.bytes(1)) - 1)
+      .foreach(i => {
+        pool(i - 1) = ConstantType.of(new RawConstant(reader))
+        println(pool(i - 1).value)
+      })
   }
 
 }

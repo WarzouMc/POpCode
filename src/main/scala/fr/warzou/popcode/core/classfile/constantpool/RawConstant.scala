@@ -5,7 +5,8 @@ import fr.warzou.popcode.utils.ByteSequence
 
 class RawConstant(val reader: ByteByByteReader) {
 
-  private val _tag: ByteSequence = new ByteSequence("", reader.next(), false)
+  private val _tag: ByteSequence = new ByteSequence(reader.next())
+  println(reader.position + ".." + tag)
 
   def tag: ByteSequence = _tag
 
