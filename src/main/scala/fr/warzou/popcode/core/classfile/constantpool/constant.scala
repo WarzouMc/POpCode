@@ -4,6 +4,7 @@ import fr.warzou.popcode.core.file.reader.ByteByByteReader
 import fr.warzou.popcode.utils.{ByteSequence, Utils}
 
 case object constant {
+
   abstract class Constant[A](val rawConstant: RawConstant) {
 
     protected val reader: ByteByByteReader = rawConstant.reader
@@ -12,7 +13,7 @@ case object constant {
 
     protected def readValue(): A
 
-    def tag: Int = rawConstant.tag.bytes(0)
+    def tag: ConstantType = ConstantType.fromTag(rawConstant.tag.bytes(0)).get
 
     def value: A = _value
 
@@ -23,18 +24,18 @@ case object constant {
         false
       } else {
         val that: Constant[_] = obj.asInstanceOf[this.type]
-        that._value.equals(_value) && that.tag == tag && that._size == _size
+        that._value == _value && that.tag == tag && that._size == _size
       }
     }
   }
 
   case class Utf8Constant(override val rawConstant: RawConstant) extends Constant[(Int, String)](rawConstant) {
     private val _length: ByteSequence = new ByteSequence(rawConstant.reader.next(2))
-    private val byteValue: ByteSequence = new ByteSequence(reader.next(Integer.valueOf(_length.bytes(0) + "" + _length.bytes(1))))
+    private val byteValue: ByteSequence = new ByteSequence(reader.next(length))
 
     _value = readValue()
 
-    def length: Int = Integer.valueOf(_length.bytes(0) + "" + _length.bytes(1))
+    def length: Int = Integer.valueOf(_length.bytes(0).toString + "" + _length.bytes(1).toString)
 
     override protected def readValue(): (Int, String) = {
       var string: String = ""
@@ -45,50 +46,71 @@ case object constant {
       }
       (length, string)
     }
+
+    override def toString: String = "Utf8Constant{" +
+      "tag=" + tag + ", " +
+      "value=" + value +
+      "}"
   }
 
   case class IntegerConstant(override val rawConstant: RawConstant) extends Constant[Int](rawConstant) {
     _value = readValue()
 
     override protected def readValue(): Int = {
-      var stringValue: String = ""
       val byteSequence: ByteSequence = new ByteSequence(reader.next(4))
       val sequence = byteSequence.sequence
       Utils.hexToSignedInt(sequence)
     }
+
+    override def toString: String = "IntegerConstant{" +
+      "tag=" + tag + ", " +
+      "value=" + value +
+      "}"
   }
 
   case class FloatConstant(override val rawConstant: RawConstant) extends Constant[Float](rawConstant) {
     _value = readValue()
 
     override protected def readValue(): Float = {
-      var stringValue: String = ""
       val byteSequence: ByteSequence = new ByteSequence(reader.next(4))
       val sequence = byteSequence.sequence
       Utils.hexToSignedFloat(sequence)
     }
+
+    override def toString: String = "FloatConstant{" +
+      "tag=" + tag + ", " +
+      "value=" + value +
+      "}"
   }
 
   case class LongConstant(override val rawConstant: RawConstant) extends Constant[Long](rawConstant) {
     _value = readValue()
 
     override protected def readValue(): Long = {
-      var stringValue: String = ""
       val byteSequence: ByteSequence = new ByteSequence(reader.next(8))
       val sequence = byteSequence.sequence
       Utils.hexToSignedLong(sequence)
     }
+
+    override def toString: String = "LongConstant{" +
+      "tag=" + tag + ", " +
+      "value=" + value +
+      "}"
   }
 
   case class DoubleConstant(override val rawConstant: RawConstant) extends Constant[Double](rawConstant) {
     _value = readValue()
 
     override protected def readValue(): Double = {
-      var stringValue: String = ""
       val byteSequence: ByteSequence = new ByteSequence(reader.next(8))
       val sequence = byteSequence.sequence
       Utils.hexToSignedDouble(sequence)
     }
+
+    override def toString: String = "DoubleConstant{" +
+      "tag=" + tag + ", " +
+      "value=" + value +
+      "}"
   }
 
   case class IndexConstant(override val rawConstant: RawConstant) extends Constant[Int](rawConstant) {
@@ -101,6 +123,11 @@ case object constant {
       byteSequence.foreach(stringValue += Integer.toHexString(_))
       Integer.parseInt(stringValue, 16)
     }
+
+    override def toString: String = "IndexConstant{" +
+      "tag=" + tag + ", " +
+      "value=" + value +
+      "}"
   }
 
   case class BiIndexConstant(override val rawConstant: RawConstant) extends Constant[Array[Int]](rawConstant) {
@@ -116,6 +143,11 @@ case object constant {
 
       array
     }
+
+    override def toString: String = "BiIndexConstant{" +
+      "tag=" + tag + ", " +
+      "value=" + value.mkString("Array(", ", ", ")") +
+      "}"
   }
 
   case class MethodHandleConstant(override val rawConstant: RawConstant) extends Constant[Array[Int]](rawConstant) {
@@ -131,5 +163,10 @@ case object constant {
 
       array
     }
+
+    override def toString: String = "MethodHandleConstant{" +
+      "tag=" + tag + ", " +
+      "value=" + value.mkString("Array(", ", ", ")") +
+      "}"
   }
 }

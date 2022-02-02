@@ -1,12 +1,12 @@
 package fr.warzou.popcode.core.file.reader
 
-import java.io.{BufferedReader, FileReader, Reader, StringReader}
+import java.io.{BufferedReader, ByteArrayInputStream, ByteArrayOutputStream, File, FileInputStream, FileOutputStream, StringReader}
+import java.nio.file.Files
 
-class ByteByByteReader(val bufferedReader: BufferedReader) {
+class ByteByByteReader(val file: File) {
 
-  private val _string: String = buildString()
-  private val _array: Array[Int] = toArray
-  private val size = _string.length
+  private val _array: Array[Int] = toArray()
+  private val size = _array.length
   private var _position: Int = 0
 
   def position: Int = _position
@@ -41,20 +41,15 @@ class ByteByByteReader(val bufferedReader: BufferedReader) {
     }
   }
 
-  private def toArray: Array[Int] = {
-    val array: Array[Int] = new Array(_string.length)
-    var _count: Int = 0
-    val currentReader = new StringReader(_string)
-    while (_count < _string.length) {
-      array(_count) = currentReader.read()
-      _count += 1
+  private def toArray(): Array[Int] = {
+    val input = new FileInputStream(file)
+    val length = Files.size(file.toPath)
+    val result: Array[Int] = new Array(length.toInt)
+    var i = 0
+    while (i < length) {
+      result(i) = input.read()
+      i += 1
     }
-    array
-  }
-
-  private def buildString(): String = {
-    var result = ""
-    bufferedReader.lines().forEach(result +=  _)
     result
   }
 }

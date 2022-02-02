@@ -1,7 +1,7 @@
 package fr.warzou.popcode.core.classfile
 
 import fr.warzou.popcode.core.file.reader.ByteByByteReader
-import fr.warzou.popcode.utils.ByteSequence
+import fr.warzou.popcode.utils.{ByteSequence, Utils}
 
 class ClassInfo(val reader: ByteByByteReader) {
 
@@ -10,8 +10,8 @@ class ClassInfo(val reader: ByteByByteReader) {
   private val _majorVersion: ByteSequence = new ByteSequence(reader.next(2))
 
   def signature: String = _signature.sequence
-  def minorVersion: Int = Integer.valueOf(_minorVersion.bytes(0) + "" + _minorVersion.bytes(1))
-  def majorVersion: Int = Integer.valueOf(_majorVersion.bytes(0) + "" + _majorVersion.bytes(1))
+  def minorVersion: Int = Utils.hexToSignedInt("0000" + Utils.toU1Hex(_minorVersion.bytes(0)) + Utils.toU1Hex(_minorVersion.bytes(1)))
+  def majorVersion: Int = Utils.hexToSignedInt("0000" + Utils.toU1Hex(_majorVersion.bytes(0)) + Utils.toU1Hex(_majorVersion.bytes(1)))
 
   override def toString: String = "ClassInfo{" +
     "signature=" + _signature + "," +

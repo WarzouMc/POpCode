@@ -10,8 +10,7 @@ object Utils {
       long = (long << 4) ^ charToHex(hex.charAt(count))
       count += 1
     }
-    val sign = if ((long >> 15) == 0) 1 else -1
-    sign * (~long + 1).toInt
+    long.toInt
   }
 
   def hexToSignedFloat(hex: String): Float = {
@@ -32,14 +31,13 @@ object Utils {
 
   def hexToSignedLong(hex: String): Long = {
     val length = hex.length
-    var long: BigInt = 0L
+    var bigInt: BigInt = 0L
     var count = 0
     while ((length - 1) - count >= 0) {
-      long = (long << 4) ^ charToHex(hex.charAt(count))
+      bigInt = (bigInt << 4) ^ charToHex(hex.charAt(count))
       count += 1
     }
-    val sign = if ((long >> 31) == 0) 1 else -1
-    sign * (~long + 1).toLong
+    bigInt.toLong
   }
 
   def hexToSignedDouble(hex: String): Double = {
@@ -57,6 +55,18 @@ object Utils {
     else (bigIntValue & 0xfffffffffffffL) | 0x10000000000000L).toLong
 
     (sign * fraction * math.pow(2.0d, exponent - 1075.0d))
+  }
+
+  def toU1Hex(int: Int): String = {
+    var string: String = int.toHexString
+    while (string.length < 2) string = (if (int >= 0) "0" else "f") + string
+    string
+  }
+
+  def toU2Hex(int: Int): String = {
+    var string: String = int.toHexString
+    while (string.length < 4) string = (if (int >= 0) "0" else "f") + string
+    string
   }
 
   def toU4Hex(int: Int): String = {
