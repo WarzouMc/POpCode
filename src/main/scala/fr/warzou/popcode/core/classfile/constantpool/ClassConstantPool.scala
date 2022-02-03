@@ -1,23 +1,36 @@
 package fr.warzou.popcode.core.classfile.constantpool
 
+import fr.warzou.popcode.core.classfile.constantpool.ConstantType.Skipped
 import fr.warzou.popcode.core.classfile.constantpool.constant._
 import fr.warzou.popcode.core.file.reader.ByteByByteReader
 import fr.warzou.popcode.utils.ByteSequence
+
+import scala.annotation.tailrec
 
 class ClassConstantPool(val reader: ByteByByteReader) {
 
   private val length: ByteSequence = new ByteSequence(reader.next(2))
   private val intLength = java.lang.Integer.valueOf(length.bytes(0).toString + length.bytes(1).toString)
   private val pool: Array[Constant[_]] = new Array[Constant[_]](intLength - 1)
-  readConstants()
+  readConstants(0)
+  println(pool.mkString("Array(", ", ", ")"))
 
-  private def readConstants(): Unit = {
-    (0 until intLength - 1).foreach(i => {
-      println(reader.position)
-      pool(i) = of(new RawConstant(reader))
-      println(pool(i))
-    })
-    println(pool.mkString("Array(", ", ", ")"))
+  @tailrec
+  private def readConstants(i: Int): Unit = {
+    val bool = addConstant(i)
+    val max: Int = intLength - 2
+    if (i == max) ()
+    else readConstants(i + (if (bool) 2 else 1))
+  }
+
+  private def addConstant(i: Int): Boolean = {
+    val rawConstant = new RawConstant(reader)
+    pool(i) = of(rawConstant)
+    val tag = pool(i).tag.tag
+    if (tag == 5 || tag == 6) {
+      pool(i + 1) = SkippedConstant(rawConstant)
+      true
+    } else false
   }
 
   def of(rawConstant: RawConstant): Constant[_] = {

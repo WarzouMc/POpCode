@@ -1,5 +1,6 @@
 package fr.warzou.popcode.core.classfile.constantpool
 
+import fr.warzou.popcode.core.classfile.constantpool.ConstantType.Skipped
 import fr.warzou.popcode.core.file.reader.ByteByByteReader
 import fr.warzou.popcode.utils.{ByteSequence, Utils}
 
@@ -167,6 +168,18 @@ case object constant {
     override def toString: String = "MethodHandleConstant{" +
       "tag=" + tag + ", " +
       "value=" + value.mkString("Array(", ", ", ")") +
+      "}"
+  }
+
+  case class SkippedConstant(override val rawConstant: RawConstant) extends Constant[Unit](rawConstant) {
+
+    override def tag: ConstantType = Skipped()
+
+    override protected def readValue(): Unit = ()
+
+    override def toString: String = "SkippedConstant{" +
+      "tag=" + tag + ", " +
+      "value=()" +
       "}"
   }
 }

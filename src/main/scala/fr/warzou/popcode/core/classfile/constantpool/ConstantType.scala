@@ -1,6 +1,9 @@
 package fr.warzou.popcode.core.classfile.constantpool
 
-sealed abstract class ConstantType(tag: Int) {
+sealed abstract class ConstantType(_tag: Int) {
+
+  def tag: Int = _tag
+
   override def toString: String = getClass.getSimpleName
 }
 
@@ -23,6 +26,7 @@ object ConstantType {
   case class InvokeDynamic() extends ConstantType(18)
   case class Module() extends ConstantType(19)
   case class Package() extends ConstantType(20)
+  case class Skipped() extends ConstantType(-1)
 
   def fromTag(tag: Int): Option[ConstantType] = {
     tag match {
@@ -43,6 +47,7 @@ object ConstantType {
       case 18 => Some(InvokeDynamic())
       case 19 => Some(Module())
       case 20 => Some(Package())
+      case -1 => Some(Skipped())
       case _ => None
     }
   }
